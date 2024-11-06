@@ -1,0 +1,165 @@
+
+/* Disable header: */
+[data-testid="stHeader"] {
+    visibility: hidden;
+}
+
+/* Disable anchors under headers */
+[data-testid="stHeaderActionElements"] {
+    display: none;
+}
+
+/* Smaller gap before horizontal lines */
+hr {
+    margin: 0 0 1rem 0;
+}
+
+/* max-size and small margin for low res */
+
+[data-testid="stMainBlockContainer"] {
+    padding: 0 0.5rem 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+    [data-testid="stMainBlockContainer"] {
+        /*max-width: calc(-1rem + 100vw);*/
+        max-width: 100%;
+        padding: 0;
+    }
+}
+
+.stVerticalBlock {
+    row-gap: 0.5rem !important;
+}
+
+/* no gap between rows of the command list */
+.st-key-cmd_list .stVerticalBlock {
+    gap: 0;
+}
+
+.st-key-cmd_list .st-emotion-cache-0 {
+    padding: 0;
+}
+
+.st-key-cmd_list [data-testid="stVerticalBlockBorderWrapper"] {
+    border-width: 0;
+    padding: 0 calc(-1px + 1rem) 0 0;
+}
+
+@media (max-width: 640px) {
+    .st-key-cmd_list [data-testid="stVerticalBlockBorderWrapper"] {
+        border-width: 0;
+        padding: 0 calc(-8px + 1rem) 0 0;
+    }
+}
+
+
+@media all {
+
+    /* header */
+    /*
+    #runbook {
+        padding-bottom: 0;
+    }
+     */
+
+    .st-key-header .stColumn:nth-of-type(1) {
+        min-width: 8rem;
+        flex: 0 0 6rem;
+        text-align: left;
+    }
+
+    /* search */
+    .st-key-header .stColumn:nth-of-type(2) {
+        min-width: 6rem;
+        flex: 1 1 6rem;
+        text-align: left;
+        padding-right: 0.5rem;
+    }
+
+
+    /* List of commands: */
+    .st-key-cmd_list [data-testid="stVerticalBlock"] {
+        gap: 0 !important;
+    }
+
+    .st-key-cmd_list .stHorizontalBlock {
+        gap: 0;
+    }
+
+    .st-key-cmd_list .stColumn:nth-of-type(1) {
+        min-width: 1rem;
+        flex: 0 1 1rem;
+        text-align: right;
+    }
+
+    .st-key-cmd_list .stColumn:nth-of-type(2) {
+        min-width: calc(100% - 8rem);
+        text-align: left;
+    }
+
+    .st-key-cmd_list .stColumn:nth-of-type(3),
+    .st-key-cmd_list .stColumn:nth-of-type(4) {
+        min-width: 3rem;
+        flex: 0 1 3rem;
+        text-align: center;
+    }
+
+    /* disable border for buttons on the list and make it more dense 8 */
+    .st-key-cmd_list .stColumn:nth-of-type(2) [data-testid="stBaseButton-secondary"] {
+        padding: 0 0.5rem 0 0.5rem;
+        border-width: 0;
+        text-align: left;
+    }
+
+    /* navigation buttons */
+
+    .st-key-remote {
+        padding: 0 1rem 0 1rem;
+    }
+
+    .st-key-remote .stColumn:nth-of-type(1) {
+        min-width: calc(20% - 8rem);
+    }
+
+    .st-key-remote  .stColumn:nth-of-type(2),
+    .st-key-remote  .stColumn:nth-of-type(3) {
+        min-width: 3rem;
+        flex: 0 1 3rem;
+        text-align: center;
+    }
+
+    .st-key-remote  .stColumn:nth-of-type(4){
+        min-width: 1rem;
+        flex: 0 1 1rem;
+        text-align: center;
+    }
+
+    .st-key-remote  .stColumn:nth-of-type(5) {
+        min-width: 3rem;
+        flex: 0 1 3rem;
+        text-align: center;
+    }
+
+    .st-key-select_right [data-testid="stMarkdownContainer"],
+    .st-key-select_left [data-testid="stMarkdownContainer"] {
+        opacity: 0;
+        height: 0;
+        width: 0;
+        padding: 0;
+    }
+
+    .st-key-select_right span,
+    .st-key-select_left span {
+        margin: 0;
+    }
+
+    [data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-cmd_content) {
+        border: 0;
+        padding: 0;
+    }
+
+    .st-key-cmd_content pre {
+        padding: 0.2rem 0.4rem 0.2rem 0.4rem;
+    }
+}

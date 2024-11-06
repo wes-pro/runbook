@@ -1,0 +1,48 @@
+name = "clone_oracle"
+description = "Clonning PDB in Oracle 23ai"
+
+[[commands]]
+name = "list parameters"
+lang = "sql"
+cmd = """
+select name,display_value from v$parameter where name in (
+  'remote_listener',
+  'db_create_file_dest',
+  'db_recovery_file_dest',
+  'db_recovery_file_dest_size'
+);
+select instance_name,host_name,version_full,edition,log_mode from v$instance,v$database;
+"""
+
+[[commands]]
+name = "get tbs & files info"
+lang = "sql"
+cmd = """
+col pdb_name for a10;
+col tablespace_name for a15;
+col file_name for a130;
+select p.pdb_name, f.file_name, f.tablespace_name, f.bytes
+from cdb_data_files f
+left join cdb_pdbs p on (f.con_id=p.pdb_id)
+left join v$exa_file ef on (f.file_name=ef.FULL_PATH)
+order by f.con_id, f.file_id;
+"""
+
+[[commands]]
+name = "create cloning user "
+lang = "sql"
+cmd = """
+create user c##cloner identified by "welcome1";
+grant create session, select_catalog_role to c##cloner;
+grant create pluggable database to c##cloner container=all;
+"""
+rcmd = """
+drop user c##cloner cascade;
+"""
+
+[[commands]]
+name = "create db link"
+lang = "sql"
+cmd = """
+create database link sourcedb connect to c##cloner identified by "welcome1" using 'exacl1:1521/c23ai';
+"""
