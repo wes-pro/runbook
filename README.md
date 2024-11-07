@@ -48,7 +48,7 @@ pip install -r requirements.txt
 
 Add `-d` to enable detailed login.  
 
-If you need password protection then catalog create subdirectory and file `.streamlit/secrets.toml` 
+If you need password protection (and you **really need it** when connected to public network) then catalog create subdirectory and file `.streamlit/secrets.toml` 
 under working RunBook directory and put this inside:
 ```shell 
 password = "your password"
@@ -84,3 +84,12 @@ From now on in the browser you will this simple interface:
 ![UI](screenshots/help.png)
 And you can now lookup, search and copy your commands to clipboard or paste them directly to Zellij active pane:
 ![Copy&Execute](screenshots/presenting.png)
+
+
+# Remarks
+This application allows pasting commands to clipboard from remote machine or even execute them (but only in given Zellij session)
+Therefore **Always use** `-p` option when running program when connected to public network.
+
+Also there are some limitations of the framework I used, i.e. [Streamlit](https://streamlit.io/):
+* reloading page will ask for password again
+* search input box requires pressing Enter to filter the list
