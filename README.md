@@ -46,8 +46,15 @@ pip install -r requirements.txt
 ./runnbook.sh -s test -f commands/sql.toml -f commands/clone.toml
 ```
 
-Add `-p` if you want to be protected by password.  
-Add `-d` to enable detailed login.
+Add `-d` to enable detailed login.  
+
+If you need password protection then catalog create subdirectory and file `.streamlit/secrets.toml` 
+under working RunBook directory and put this inside:
+```shell 
+password = "your password"
+```
+Then add `-p` when you start `runbook.sh`
+
 
 EXAMPLE:
 * In one, usually big or full screen terminal (this will be your live demo screen) start Zellij providing session name and layout file:
