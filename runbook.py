@@ -2,8 +2,6 @@ import os
 import logging
 import argparse
 import pyperclip
-import yaml
-from yaml import SafeLoader
 import hmac
 import toml
 import streamlit as st

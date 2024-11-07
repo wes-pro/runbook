@@ -1,0 +1,56 @@
+layout {
+    default_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    pane_template name="ssh" {
+        command "ssh"
+    }
+
+    pane_template name="sql" {
+        command "sqlp"
+    }
+
+    pane_template name="ed" {
+        command "vi"
+    }
+
+    tab name="tab1" split_direction="horizontal" {
+        ssh {
+            args "/tmp/1"
+        }
+        ed {
+            args "/tmp/2"
+        }
+    }
+
+    tab name="tab2" split_direction="horizontal" {
+        ed {
+            args "/tmp/3"
+        }
+        ed {
+            args "/tmp/4"
+        }
+    }
+
+    tab name="tab3" split_direction="horizontal" {
+        ed {
+            args "/tmp/5"
+        }
+        pane split_direction="vertical" {
+            ed {
+                args "/tmp/6"
+            }
+            ed {
+                args "/tmp/7"
+            }
+        }
+    }
+
+}
