@@ -16,6 +16,26 @@ Usage: ./runbook.sh [-s zellij_session_name] -f command_file [-f command_file ..
 
 # Installation
 
+You need to have Python 3 installed (not covered in this instruction).  
+Also Zellij is only available for Linux and macOS. Zellij is not mandatory - but highly recommended.
+It should be quite easy to modify runbook.py for `tmux` (but I don't like tmux) or other terminal multiplexer 
+which supports remote commands.
+
+Clone repository:
+```shell
+cd <your_choosen_dir>
+git clone https://github.com/wes-pro/runbook.git
+cd runbook
+```
+Create Python virtual environment, activate it and install requirement:
+```shell
+python3 -m venv venv
+. venv/bin/activate
+pip install -r requirements.txt
+```
+
+
+
 # How to use
 
 1. Create Zellij layout file (see [test_layout.kdl](test_layout.kdl))
