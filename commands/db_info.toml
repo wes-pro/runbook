@@ -1,0 +1,102 @@
+name = "db_info"
+description = "General Oracle database information"
+
+[[commands]]
+name = "version"
+lang = "sql"
+cmd = "select banner, version_full from v$version, v$instance;"
+
+[[commands]]
+name = "con name"
+lang = "sql"
+cmd = "show con_name;"
+
+[[commands]]
+name = "who am i"
+lang = "sql"
+cmd = "show user;"
+
+[[commands]]
+name = "tables"
+lang = "sql"
+cmd="""
+col table_name heading Table format A28
+col num_rows heading Rows format 99,999,999,999
+col blocks heading Blocks format 9,999,999
+col index_count heading Indexes format 999999
+col constraint_count heading Constraints format 999999
+col part_count heading Partitions format 99999999
+col last_analyzed heading Analyzed format A8
+col tablesize heading Size format A8
+col unformatted_size heading Size(GB) format 9,990.999
+col compression heading Compression format A12
+
+SELECT table_name,
+  num_rows        ,
+  blocks          ,
+  nvl(ts.unformatted_size/1073741824,0)  unformatted_size,
+  CASE
+    WHEN t.compression = 'DISABLED'
+    THEN 'Disabled'
+    WHEN t.compression ='ENABLED'
+    THEN 'Compressed'
+  END compression,
+  (SELECT COUNT(1) FROM user_indexes i WHERE t.table_name = i.table_name
+  ) index_count,
+  (SELECT COUNT(1) FROM user_constraints uc
+   WHERE t.table_name = uc.table_name
+   AND uc.constraint_type in ('P','R','U')
+  ) constraint_count,
+  (SELECT COUNT(1) FROM user_tab_partitions p WHERE t.table_name = p.table_name
+  ) part_count,
+  CASE
+    WHEN (sysdate - last_analyzed) BETWEEN 0 AND 0.1
+    THEN '< Hour'
+    WHEN (sysdate - last_analyzed) BETWEEN 0.1 AND 1.0
+    THEN '< Day'
+    WHEN (sysdate - last_analyzed) BETWEEN 1.0 AND 7.0
+    THEN '< Week'
+    WHEN (sysdate - last_analyzed) BETWEEN 7.0 AND 28.0
+    THEN '< Month'
+    ELSE '> Month'
+  END last_analyzed
+   FROM user_tables t ,
+  (SELECT segment_name,
+    SUM(s.bytes) unformatted_size
+     FROM user_segments s
+    WHERE s.segment_type IN ('TABLE', 'TABLE PARTITION', 'TABLE SUBPARTITION')
+ GROUP BY s.segment_name
+  ) ts
+  WHERE t.table_name = ts.segment_name (+)
+  order by ts.unformatted_size desc
+;
+"""
+
+[[commands]]
+name = "tablespaces"
+lang = "sql"
+cmd = """select c.pdb_name, t.*
+from
+  cdb_tablespace_usage_metrics t,
+  (select pdb_name, con_id from dba_pdbs union all select 'CDB$ROOT',1 from dual union all select 'ALL',0 from dual) c
+where t.con_id=c.con_id;
+"""
+
+[[commands]]
+name = "datafiles"
+lang = "sql"
+cmd = """col pdb_name for a10;
+col tablespace_name for a15;
+col file_name for a130;
+select p.pdb_name, f.file_name, f.tablespace_name, f.bytes
+from cdb_data_files f
+left join cdb_pdbs p on (f.con_id=p.pdb_id)
+left join v$exa_file ef on (f.file_name=ef.FULL_PATH)
+order by f.con_id, f.file_id;
+"""
+
+[[commands]]
+name = "stats schema"
+lang = "sql"
+cmd = "execute dbms_stats.gather_schema_stats(null);"
+

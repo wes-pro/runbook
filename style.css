@@ -115,34 +115,36 @@ hr {
     /* navigation buttons */
 
     .st-key-remote {
-        padding: 0 1rem 0 1rem;
+        padding: 0 .5rem 0 .5rem;
     }
 
     .st-key-remote .stColumn:nth-of-type(1) {
-        min-width: calc(20% - 8rem);
+        min-width: calc(10% - 8rem);
     }
 
     .st-key-remote  .stColumn:nth-of-type(2),
     .st-key-remote  .stColumn:nth-of-type(3) {
-        min-width: 3rem;
-        flex: 0 1 3rem;
+        min-width: 4rem;
+        flex: 0 1 4rem;
         text-align: center;
     }
 
-    .st-key-remote  .stColumn:nth-of-type(4){
+    .st-key-remote  .stColumn:nth-of-type(9){
         min-width: 1rem;
         flex: 0 1 1rem;
         text-align: center;
     }
 
-    .st-key-remote  .stColumn:nth-of-type(5) {
-        min-width: 3rem;
-        flex: 0 1 3rem;
+    .st-key-remote  .stColumn:nth-of-type(4) {
+        min-width: 4rem;
+        flex: 0 1 4rem;
         text-align: center;
     }
 
+    .st-key-clear_screen [data-testid="stMarkdownContainer"],
     .st-key-select_right [data-testid="stMarkdownContainer"],
-    .st-key-select_left [data-testid="stMarkdownContainer"] {
+    .st-key-select_left [data-testid="stMarkdownContainer"],
+    .st-key-select_enter [data-testid="stMarkdownContainer"] {
         opacity: 0;
         height: 0;
         width: 0;

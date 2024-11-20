@@ -1,0 +1,56 @@
+name = "vectors"
+description = "VECTOR type and models demonstration"
+
+[[commands]]
+name = "create user (comment)"
+lang = "sql"
+cmd = """
+
+/*
+create bigfile tablespace VECTOR datafile size 1G autoextend on next 1G maxsize 10G;
+alter tablespace temp add tempfile size 1G autoextend on next 1g;
+
+create user vector identified by welcome1
+  default tablespace VECTOR temporary tablespace TEMP
+  quota unlimited on VECTOR;
+
+grant create mining model TO vector;
+grant db_developer_role to vector;
+
+create or replace directory dm_dump as '/acfs01';
+grant read, write on directory dm_dump to vector;
+
+grant select any dictionary to vector;
+grant select_catalog_role to vector;
+grant execute on dbms_monitor to vector;
+*/
+
+"""
+
+[[commands]]
+name = "songs - describe"
+lang = "sql"
+cmd = """
+col column_name for a20
+col data_type for a10
+select
+    column_name, data_type, data_length, num_distinct, num_nulls
+from user_tab_columns
+where table_name='SONGS';
+"""
+
+[[commands]]
+name = "songs - ddl"
+lang = "sql"
+cmd = "select dbms_metadata.get_ddl('TABLE','SONGS') from dual;"
+
+[[commands]]
+name = "songs - segments"
+lang = "sql"
+cmd = """
+select  segment_name, partition_name,
+from user_segments
+where
+    segment_name='SONGS'
+    or segment_name in (select segment_name from user_lobs where table_name='SONGS');
+"""

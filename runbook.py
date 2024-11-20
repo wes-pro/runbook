@@ -59,9 +59,25 @@ def check_password():
 
 
 def zellij_run_command(cmd):
-    cmd = cmd.replace('$', '\\$')
-    zcmd = f'zellij --session "{args.session_name}" action write-chars \"{cmd}\"'
-    os.system(zcmd)
+    cmd = cmd.replace('$', '\\$').strip().splitlines()
+    for i, line in enumerate(cmd):
+        if i < len(cmd) - 1:
+            zcmd = f'zellij --session "{args.session_name}" action write-chars \"{line}\n\"'
+        else:
+            if exec_button:
+                zcmd = f'zellij --session "{args.session_name}" action write-chars \"{line}\n\"'
+            else:
+                zcmd = f'zellij --session "{args.session_name}" action write-chars \"{line}\"'
+        os.system(zcmd)
+
+    #if exec_button:
+    #    cmd += "\n"
+    #zcmd = f'zellij --session "{args.session_name}" action write-chars \"\n\"'
+    #os.system(zcmd)
+    # zcmd = f'zellij --session "{args.session_name}" action write-chars \"{cmd}\"'
+    # os.system(zcmd)
+
+
 
 
 def zellij_prev_tab():
@@ -84,8 +100,32 @@ def zellij_next_pane():
     os.system(zcmd)
 
 
+def zellij_toggle_sync_tab():
+    zcmd = f'zellij --session "{args.session_name}" action toggle-active-sync-tab'
+    os.system(zcmd)
+
+
+def zellij_toogle_fullscreen():
+    zcmd = f'zellij --session "{args.session_name}" action toggle-fullscreen'
+    os.system(zcmd)
+
+
+def zellij_scroll_up():
+    for i in range(20):
+        zcmd = f'zellij --session "{args.session_name}" action scroll-up'
+        os.system(zcmd)
+
+
+def zellij_scroll_down():
+    for i in range(20):
+        zcmd = f'zellij --session "{args.session_name}" action scroll-down'
+        os.system(zcmd)
+
+
 def zellij_clear_screen():
     if st.session_state.curr_command['lang'] == 'sql':
+        zcmd = f'zellij --session "{args.session_name}" action write-chars \"\x03\n\"'
+        os.system(zcmd)
         cmd = "clear screen\n"
     else:
         cmd = "clear\n"
@@ -93,7 +133,12 @@ def zellij_clear_screen():
     os.system(zcmd)
 
 
-def select_next_cmd(execute=False):
+def zellij_enter():
+    zcmd = f'zellij --session "{args.session_name}" action write-chars \"\n\"'
+    os.system(zcmd)
+
+
+def select_next_cmd():
     curr_cmd_index = st.session_state.curr_series['commands'].index(st.session_state.curr_command)
     if exec_button:
         zellij_run_command(st.session_state.curr_command['cmd'])
@@ -101,7 +146,7 @@ def select_next_cmd(execute=False):
         st.session_state.curr_command = st.session_state.curr_series['commands'][curr_cmd_index+1]
 
 
-def select_prev_cmd(execute=False):
+def select_prev_cmd():
     curr_cmd_index = st.session_state.curr_series['commands'].index(st.session_state.curr_command)
     if curr_cmd_index > 0:
         st.session_state.curr_command = st.session_state.curr_series['commands'][curr_cmd_index-1]
@@ -160,7 +205,7 @@ if 'curr_command' not in st.session_state:
     st.session_state.search_string = ''
     st.session_state.sel_helpers = {}
 
-with open('style.css', 'r') as file:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'style.css'), 'r') as file:
     st.markdown(f'<style>{file.read()}</style>', unsafe_allow_html=True)
 
 with st.container(key='header'):
@@ -178,23 +223,48 @@ with st.container(key='cmd_list'):
 
 '---'
 with st.container(key='remote'):
-    col_exec_checkbox, col_tab, col_pane, _, col_select = st.columns([1,1,1,1,1], vertical_alignment='center')
-    with col_exec_checkbox:
+    col_r11, col_r12, col_r13, col_r14 = st.columns([1,1,1,1], vertical_alignment='center')
+
+    with col_r11:
         with st.container(key='col_exec'):
             exec_button = st.checkbox('AutoExec')
-            st.button('Clear screen', icon=':material/mop:', key='clear', on_click=zellij_clear_screen)
-    with col_tab:
-        st.button('', icon=':material/arrow_circle_left:', key='tab_left', on_click=zellij_prev_tab)
-        st.button('', icon=':material/keyboard_double_arrow_left:', key='pane_left', on_click=zellij_prev_pane)
-    with col_pane:
-        st.button('', icon=':material/arrow_circle_right:', key='tab_right', on_click=zellij_next_tab)
-        st.button('', icon=':material/keyboard_double_arrow_right:', key='pane_right', on_click=zellij_next_pane)
-    with col_select:
-        st.button('select_right', icon=':material/start:', key='select_right', on_click=select_next_cmd)
-        st.button('select_left', icon=':material/keyboard_tab_rtl:', key='select_left', on_click=select_prev_cmd)
+            #st.button('clear_screen', icon=':material/mop:', use_container_width=True, key='clear_screen', on_click=zellij_clear_screen)
+    with col_r12:
+        st.button('', icon=':material/arrow_circle_left:', key='tab_left', use_container_width=True, on_click=zellij_prev_tab)
+        st.button('', icon=':material/keyboard_double_arrow_left:', key='pane_left', use_container_width=True, on_click=zellij_prev_pane)
+    with col_r13:
+        st.button('', icon=':material/arrow_circle_right:', key='tab_right', use_container_width=True, on_click=zellij_next_tab)
+        st.button('', icon=':material/keyboard_double_arrow_right:', key='pane_right', use_container_width=True, on_click=zellij_next_pane)
+    with col_r14:
+        if exec_button:
+            st.button('select_right', icon=':material/start:', key='select_right', type='primary', use_container_width=True, on_click=select_next_cmd)
+            st.button('select_enter', icon=':material/keyboard_return:', key='select_enter', type='secondary', use_container_width=True, on_click=zellij_enter)
+        else:
+            st.button('select_right', icon=':material/start:', key='select_right', use_container_width=True, on_click=select_next_cmd)
+            st.button('select_enter', icon=':material/keyboard_return:', key='select_enter', type='primary', use_container_width=True, on_click=zellij_enter)
+        #st.button('select_enter', icon=':material/keyboard_return:', key='select_enter', type='primary', use_container_width=True, on_click=zellij_enter)
+
+    col_r21, col_r22, col_r23, col_r24 = st.columns([1,1,1,1], vertical_alignment='center')
+    with col_r21:
+        st.button('', icon=':material/fullscreen:', key='fullscreen', use_container_width=True, on_click=zellij_toogle_fullscreen)
+    with col_r22:
+        st.button('', icon=':material/sync:', key='toogle_tab_sync', use_container_width=True, on_click=zellij_toggle_sync_tab)
+
+    col_r31, col_r32, col_r33, col_r34 = st.columns([1,1,1,1], vertical_alignment='center')
+    with col_r31:
+        st.button('clear_screen', icon=':material/mop:', use_container_width=True, key='clear_screen', on_click=zellij_clear_screen)
+    with col_r32:
+        st.button('', icon=':material/more_down:', key='more_down', use_container_width=True, on_click=zellij_scroll_down)
+    with col_r33:
+        st.button('', icon=':material/more_up:', key='more_up', use_container_width=True, on_click=zellij_scroll_up)
+    with col_r34:
+        st.button('select_left', icon=':material/keyboard_tab_rtl:', key='select_left', use_container_width=True, on_click=select_prev_cmd)
+
+
 '---'
 
-with st.container(key='cmd_content', height=200):
+with st.container(key='cmd_content', height=300):
     st.code(st.session_state.curr_command['cmd'], language=st.session_state.curr_command['lang'])
 
-add_keyboard_shortcuts({"ArrowRight": "select_right", "ArrowLeft": "select_left"})
+#add_keyboard_shortcuts({"ArrowRight": "select_right", "ArrowLeft": "select_left"})
+add_keyboard_shortcuts({"PageDown": "select_right", "PageUp": "select_left"})

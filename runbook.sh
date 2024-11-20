@@ -46,9 +46,11 @@ if [ "${#command_files[@]}" -eq 0 ]; then
     usage
 fi
 
-. venv/bin/activate
+CMD=$(dirname $0)
+
+. $CMD/venv/bin/activate
 streamlit run \
   --client.toolbarMode viewer \
   --ui.hideTopBar true \
   --theme.base dark \
-  runbook.py -- "$@"
+  $CMD/runbook.py -- "$@"
