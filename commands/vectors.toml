@@ -7,24 +7,57 @@ lang = "sql"
 cmd = """
 
 /*
-create bigfile tablespace VECTOR datafile size 1G autoextend on next 1G maxsize 10G;
-alter tablespace temp add tempfile size 1G autoextend on next 1g;
-
 create user vector identified by welcome1
   default tablespace VECTOR temporary tablespace TEMP
   quota unlimited on VECTOR;
 
-grant create mining model TO vector;
 grant db_developer_role to vector;
+  -- includes "create mining model" privilege
 
 create or replace directory dm_dump as '/acfs01';
 grant read, write on directory dm_dump to vector;
-
-grant select any dictionary to vector;
-grant select_catalog_role to vector;
-grant execute on dbms_monitor to vector;
 */
 
+"""
+
+[[commands]]
+name = "load model"
+lang = "sql"
+cmd = "execute dbms_vector.load_onnx_model('DM_DUMP', 'all-MiniLM-L6-v2.onnx', 'minilm_model'); "
+undo = "execute dbms_vector.drop_onnx_model('minilm_model'); "
+
+[[commands]]
+name = "show model"
+lang = "sql"
+cmd = """
+col model_name for a20
+select
+  model_name, mining_function, algorithm, algorithm_type, model_size
+from user_mining_models
+order by model_name;
+"""
+
+[[commands]]
+name = "songs - create"
+lang = "sql"
+cmd = """
+/*
+create table if not exists SONGS (
+    id NUMBER generated always as identity,
+    id_src NUMBER,
+    title VARCHAR2(1024),
+    tag VARCHAR2(128),
+    artist VARCHAR2(1024),
+    year INTEGER,
+    views INTEGER,
+    features VARCHAR2(4000),
+    lang VARCHAR(10),
+    lyrics CLOB,
+)
+nologging parallel 8
+partition by hash (lang) partitions 8
+;
+*/
 """
 
 [[commands]]
@@ -36,21 +69,68 @@ col data_type for a10
 select
     column_name, data_type, data_length, num_distinct, num_nulls
 from user_tab_columns
-where table_name='SONGS';
+where table_name='SONGS'
+order by column_id;
 """
 
 [[commands]]
-name = "songs - ddl"
+name = "songs - sample"
 lang = "sql"
-cmd = "select dbms_metadata.get_ddl('TABLE','SONGS') from dual;"
+cmd = """
+col artist for a20
+col lyrics for a76
+col title for a30
+col year for 9999
+select artist, title, year, dbms_lob.substr(lyrics, 80, 1) as lyrics from songs sample(0.05);
+"""
 
 [[commands]]
 name = "songs - segments"
 lang = "sql"
 cmd = """
-select  segment_name, partition_name,
-from user_segments
-where
-    segment_name='SONGS'
-    or segment_name in (select segment_name from user_lobs where table_name='SONGS');
+col owner for a10
+col table_name for a15
+col segment_name for a30
+select
+    l.owner, l.table_name, l.column_name, l.segment_name, l.tablespace_name, ROUND(s.bytes/1024/1024,2) size_mb
+from dba_lobs l
+join dba_segments s on s.owner = l.owner and s.segment_name = l.segment_name
+where table_name='SONGS';
 """
+
+[[commands]]
+name = "songs - add vector columns"
+lang = "sql"
+cmd = """
+alter table songs add  (
+  title_vec VECTOR,
+  lyrics_vec VECTOR
+);
+"""
+undo = "alter table songs drop (title_vec, lyrics_vec);"
+
+[[commands]]
+name = "create vectors for title"
+lang = "sql"
+cmd = """
+update SONGS set title_vec = TO_VECTOR(VECTOR_EMBEDDING(minilm_model USING title as data));
+"""
+
+[[commands]]
+name = "songs - sample with vectors"
+lang = "sql"
+cmd = """
+col artist for a20
+col title for a30
+col title_vec for a80
+col year for 9999
+select artist, title, title_vec from songs sample(0.01);
+"""
+
+[[commands]]
+name = "create vectors for lyrics"
+lang = "sql"
+cmd = """
+update SONGS set lyrics_vec = TO_VECTOR(VECTOR_EMBEDDING(minilm_model USING lyrics as data));
+"""
+

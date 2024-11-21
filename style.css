@@ -164,4 +164,15 @@ hr {
     .st-key-cmd_content pre {
         padding: 0.2rem 0.4rem 0.2rem 0.4rem;
     }
+
+    .st-key-ctrl_c span {
+        margin: 0;
+    }
+
+    .st-key-ctrl_c [data-testid="stMarkdownContainer"] {
+        opacity: 0;
+        height: 0;
+        width: 0;
+        padding: 0;
+    }
 }
