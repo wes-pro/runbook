@@ -1,10 +1,10 @@
-name = "db_info"
+name = "DB Info"
 description = "General Oracle database information"
 
 [[commands]]
 name = "version"
 lang = "sql"
-cmd = "select banner, version_full from v$version, v$instance;"
+cmd = "select instance_name, host_name, version_full from v$version, v$instance;"
 
 [[commands]]
 name = "con name"
@@ -86,8 +86,8 @@ where t.con_id=c.con_id;
 name = "datafiles"
 lang = "sql"
 cmd = """col pdb_name for a10;
-col tablespace_name for a15;
-col file_name for a130;
+col tablespace_name for a10;
+col file_name for a65;
 select p.pdb_name, f.file_name, f.tablespace_name, f.bytes
 from cdb_data_files f
 left join cdb_pdbs p on (f.con_id=p.pdb_id)

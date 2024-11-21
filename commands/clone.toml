@@ -1,5 +1,10 @@
-name = "clone_oracle"
+name = "PDB clone"
 description = "Clonning PDB in Oracle 23ai"
+
+[[commands]]
+name = "version"
+lang = "sql"
+cmd = "select instance_name, host_name, version_full, edition, log_mode from v$version, v$instance, v$database;"
 
 [[commands]]
 name = "list parameters"
@@ -11,22 +16,57 @@ select name,display_value from v$parameter where name in (
   'db_recovery_file_dest',
   'db_recovery_file_dest_size'
 );
-select instance_name,host_name,version_full,edition,log_mode from v$instance,v$database;
 """
 
 [[commands]]
-name = "get tbs & files info"
+name = "show pdbs"
+lang = "sql"
+cmd = "show pdbs;"
+
+[[commands]]
+name = "show files"
 lang = "sql"
 cmd = """
-col pdb_name for a10;
-col tablespace_name for a15;
-col file_name for a130;
-select p.pdb_name, f.file_name, f.tablespace_name, f.bytes
+col file_name for a70
+select
+  p.pdb_name,
+  ef.content_type,
+  ef.media_type,
+  regexp_replace(f.file_name,'([^/]{10})[^/]*','\\1...') file_name
 from cdb_data_files f
-left join cdb_pdbs p on (f.con_id=p.pdb_id)
-left join v$exa_file ef on (f.file_name=ef.FULL_PATH)
+  left join cdb_pdbs p on (f.con_id=p.pdb_id)
+  left join v$exa_file ef on (f.file_name=ef.FULL_PATH)
 order by f.con_id, f.file_id;
 """
+
+[[commands]]
+name = "clone file details"
+lang = "bash"
+cmd = """
+sudo -iu oracle ORACLE_BASE=/u01/app/oracle \
+    escli lssnapshots Databases-c1vault/EXACL1-CC35F2A857F1FFE5FF25A2234FE1D482/C23AI/23A949FF07A4449FE0633564A8C058B1/DATAFILE/VECTOR.OMF.2C096E5D --tree
+"""
+
+[[commands]]
+name = "list dataset sizes"
+lang = "bash"
+cmd = """
+sudo -iu oracle ORACLE_BASE=/u01/app/oracle \
+    escli lsdataset --attributes name,datasetSpaceUsedHC,fileSpaceUsedHC | sort
+"""
+
+[[commands]]
+name = "local cloning"
+lang = "sql"
+cmd = """
+create pluggable database clone1 from p23ai1 snapshot copy;
+alter pluggable database clone1 open instances=all;
+"""
+undo = """
+alter pluggable database clone1 close immediate instances=all;
+drop pluggable database clone1 including datafiles;
+"""
+
 
 [[commands]]
 name = "create cloning user "
@@ -36,13 +76,35 @@ create user c##cloner identified by "welcome1";
 grant create session, select_catalog_role to c##cloner;
 grant create pluggable database to c##cloner container=all;
 """
-rcmd = """
-drop user c##cloner cascade;
-"""
+undo = "drop user c##cloner cascade;"
 
 [[commands]]
 name = "create db link"
 lang = "sql"
+cmd = "create database link sourcedb connect to c##cloner identified by \"welcome1\" using 'exacl1:1521/c23ai';"
+undo = "drop database link sourcedb;"
+
+[[commands]]
+name = "remote cloning"
+lang = "sql"
 cmd = """
-create database link sourcedb connect to c##cloner identified by "welcome1" using 'exacl1:1521/c23ai';
+create pluggable database rclone1 from p23ai1@sourcedb snapshot copy;
+alter pluggable database rclone1 open instances=all;
 """
+undo = """
+alter pluggable database rclone1 close immediate instances=all;
+drop pluggable database rclone1 including datafiles;
+"""
+
+[[commands]]
+name = "remote cloning from clone"
+lang = "sql"
+cmd = """
+create pluggable database rclone2 from clone1@sourcedb snapshot copy;
+alter pluggable database rclone2 open instances=all;
+"""
+undo = """
+alter pluggable database rclone2 close immediate instances=all;
+drop pluggable database rclone2 including datafiles;
+"""
+

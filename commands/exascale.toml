@@ -1,0 +1,66 @@
+name = "ExaScale config"
+description = "ExaScale Demo"
+
+[[commands]]
+name = "list dbserver details"
+lang = "bash"
+cmd = "dbmcli -e list dbserver detail"
+
+[[commands]]
+name = "list cell details"
+lang = "bash"
+cmd = "cellcli -e list cell detail"
+
+[[commands]]
+name = "list ES cluster"
+lang = "bash"
+cmd = "escli lscluster --detail"
+
+[[commands]]
+name = "list storagepool"
+lang = "bash"
+cmd = "escli lsstoragepool --detail"
+
+[[commands]]
+name = "list pooldisk"
+lang = "bash"
+cmd = "escli lspooldisk"
+
+[[commands]]
+name = "list vault as root"
+lang = "bash"
+cmd = "escli lsvault --detail"
+
+[[commands]]
+name = "list vault as oracle"
+lang = "bash"
+cmd = "sudo -iu oracle ORACLE_BASE=/u01/app/oracle escli lsvault --detail"
+
+[[commands]]
+name = "list wallet as root"
+lang = "bash"
+cmd = "escli lswallet --attributes user,id"
+
+[[commands]]
+name = "list wallet as root"
+lang = "bash"
+cmd = "sudo -iu oracle ORACLE_BASE=/u01/app/oracle escli lswallet --attributes user,id"
+
+[[commands]]
+name = "File details"
+lang = "bash"
+cmd = """
+crsctl query css votedisk
+escli ls Cluster-c1vault/EXACL1-CC35F2A857F1FFE5FF25A2234FE1D482/vfile1 --detail
+escli ls Cluster-c1vault/EXACL1-CC35F2A857F1FFE5FF25A2234FE1D482/data.ocr --detail
+"""
+
+[[commands]]
+name = "show users from db node"
+lang = "bash"
+cmd = "escli lsuser --detail"
+
+[[commands]]
+name = "show users from cell"
+lang = "bash"
+cmd = "escli --wallet /root/cluster_wallet lsuser --detail"

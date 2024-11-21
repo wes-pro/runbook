@@ -1,6 +1,7 @@
 import os
 import logging
 import argparse
+import time
 import pyperclip
 import hmac
 import toml
@@ -58,7 +59,7 @@ def check_password():
     return False
 
 
-def zellij_run_command(cmd):
+def zellij_run_command(cmd, lang=None):
     cmd = cmd.strip().splitlines()
     for i, line in enumerate(cmd):
         line_bytes = ' '.join([str(b) for b in list(line.encode())])
@@ -66,6 +67,8 @@ def zellij_run_command(cmd):
             line_bytes += ' 10'
         zcmd = f'zellij --session "{args.session_name}" action write {line_bytes}'
         os.system(zcmd)
+        if lang and lang == 'bash':
+            time.sleep(0.2)
 
 
 def zellij_prev_tab():
@@ -135,7 +138,7 @@ def zellij_enter():
 def select_next_cmd():
     curr_cmd_index = st.session_state.curr_series['commands'].index(st.session_state.curr_command)
     if exec_button or insert_on_move:
-        zellij_run_command(st.session_state.curr_command['cmd'])
+        zellij_run_command(st.session_state.curr_command['cmd'], lang=st.session_state.curr_command['lang'])
     if curr_cmd_index < len(st.session_state.curr_series['commands']) - 1:
         st.session_state.curr_command = st.session_state.curr_series['commands'][curr_cmd_index+1]
 
@@ -159,7 +162,7 @@ def update_selection(curr_series, curr_command, execute=False, undo=False):
             else:
                 logger.debug(f"About to execute below Zellij command into session {args.session_name}:\n{curr_command['cmd']}")
                 pyperclip.copy(curr_command['cmd'])
-                zellij_run_command(curr_command['cmd'])
+                zellij_run_command(curr_command['cmd'], lang=st.session_state.curr_command['lang'])
         else:
             logger.error("Can't run Zellij command without session name")
 
@@ -180,7 +183,8 @@ def render_command_table(cmd_series):
                     empty.markdown(':material/chevron_right:')
 
             with col1:
-                st.button(cmd['name'], key=f'{cmd_series['name']}-copy-{i}', on_click=update_selection, args=(cmd_series, cmd))
+                with st.container(key=f'cmd_lang_{cmd['lang']}-{cmd_series['name']}-{i}'):
+                    st.button(cmd['name'], key=f'{cmd_series['name']}-copy-{i}', on_click=update_selection, args=(cmd_series, cmd))
             with col2:
                 st.button('', icon=':material/directions_run:', key=f'{cmd_series['name']}-exec-{i}', on_click=update_selection, args=(cmd_series, cmd, True))
             with col3:
@@ -259,9 +263,9 @@ with st.container(key='remote'):
 
     col_r41, col_r42, col_r43, col_r44 = st.columns([1,1,1,1], vertical_alignment='center')
     with col_r41:
-        st.button('', icon=':material/fullscreen:', key='fullscreen', use_container_width=True, on_click=zellij_toogle_fullscreen)
-    with col_r42:
         st.button('', icon=':material/mop:', use_container_width=True, key='clear_screen', on_click=zellij_clear_screen)
+    with col_r42:
+        st.button('', icon=':material/fullscreen:', key='fullscreen', use_container_width=True, on_click=zellij_toogle_fullscreen)
     with col_r43:
         st.button('', icon=':material/sync:', key='toogle_tab_sync', use_container_width=True, on_click=zellij_toggle_sync_tab)
     with col_r44:

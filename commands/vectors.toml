@@ -1,4 +1,4 @@
-name = "vectors"
+name = "Vectors"
 description = "VECTOR type and models demonstration"
 
 [[commands]]
@@ -95,7 +95,8 @@ select
     l.owner, l.table_name, l.column_name, l.segment_name, l.tablespace_name, ROUND(s.bytes/1024/1024,2) size_mb
 from dba_lobs l
 join dba_segments s on s.owner = l.owner and s.segment_name = l.segment_name
-where table_name='SONGS';
+where table_name like 'SONGS%'
+order by table_name, column_name;
 """
 
 [[commands]]
@@ -128,9 +129,108 @@ select artist, title, title_vec from songs sample(0.01);
 """
 
 [[commands]]
+name = "search using vectors"
+lang = "sql"
+cmd = """
+col title for a100
+select
+  artist,title,year from SONGS
+order by
+  vector_distance(title_vec, TO_VECTOR(VECTOR_EMBEDDING(minilm_model USING '&search_text' as data)), COSINE)
+fetch approx first 10 rows only;
+"""
+
+[[commands]]
 name = "create vectors for lyrics"
 lang = "sql"
 cmd = """
 update SONGS set lyrics_vec = TO_VECTOR(VECTOR_EMBEDDING(minilm_model USING lyrics as data));
 """
+
+[[commands]]
+name = "explain chunks"
+lang = "sql"
+cmd = """
+select
+  dbms_vector.utl_to_chunks(lyrics) chunk
+from songs
+where artist = 'The Beatles' and title = 'Getting Better';
+"""
+
+[[commands]]
+name = "create vectors chunks"
+lang = "sql"
+cmd = """
+create table songs_chunks nologging as (
+select s.id, tch.chunk_id, tch.chunk_offset, tch.chunk_length, tch.chunk_data
+from SONGS s,
+  dbms_vector_chain.utl_to_chunks(
+    s.lyrics,
+    json('{
+      "by" : "words",
+      "max" : "100",
+      "split" : "recursively",
+      "overlap" : "5",
+      "language" : "american",
+      "normalize":"all"
+    }')
+  ) ch,
+  JSON_TABLE(
+    ch.column_value,
+    '$[*]' COLUMNS (
+      chunk_id NUMBER PATH '$.chunk_id',
+      chunk_offset NUMBER PATH '$.chunk_offset',
+      chunk_length NUMBER PATH '$.chunk_length',
+      chunk_data VARCHAR2(4000) PATH '$.chunk_data'
+    )
+  ) tch
+);
+"""
+undo = "drop table songs_chunks;"
+
+[[commands]]
+name = "songs with chunks - sample"
+lang = "sql"
+cmd = """
+col title for a20
+col chunk_data for a70
+select
+  s.title, ch.chunk_id, ch.chunk_offset, ch.chunk_length, ch.chunk_data
+from
+  songs s left join songs_chunks ch using (id)
+where
+  s.artist = 'The Beatles' and s.title = 'Getting Better'
+order
+  by ch.chunk_id;
+"""
+
+[[commands]]
+name = "create vectors for lyrics chunks"
+lang = "sql"
+cmd = """
+alter table songs_chunks add  (
+  lyrics_vec VECTOR
+);
+/*
+update SONGS_CHUNKS set lyrics_vec = TO_VECTOR(VECTOR_EMBEDDING(minilm_model USING chunk_data as data));
+*/
+"""
+undo = "alter table songs_chunks drop (lyrics_vec);"
+
+[[commands]]
+name = "search lyrics using vectors"
+lang = "sql"
+cmd = """
+col title for a30
+col ch.chunk_data for a60
+select
+  s.artist, s.title, ch.chunk_data
+from SONGS s left join songs_chunks2 ch using (id)
+where
+  length(ch.chunk_data)>50
+order by
+  vector_distance(ch.lyrics_vec, TO_VECTOR(VECTOR_EMBEDDING(minilm_model USING '&search_text' as data)), COSINE)
+fetch approx first 5 rows only;
+"""
+
 

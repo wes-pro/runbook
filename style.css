@@ -112,6 +112,15 @@ hr {
         text-align: left;
     }
 
+    .st-key-cmd_lang_sql {
+        /*color: #7abaff;*/
+        color: white;
+    }
+
+    .st-key-cmd_lang_bash {
+        color: wheat;
+    }
+
     /* navigation buttons */
 
     .st-key-remote {
