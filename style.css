@@ -150,6 +150,8 @@ hr {
         text-align: center;
     }
 
+    .st-key-tab_left [data-testid="stMarkdownContainer"],
+    .st-key-tab_right [data-testid="stMarkdownContainer"],
     .st-key-clear_screen [data-testid="stMarkdownContainer"],
     .st-key-select_right [data-testid="stMarkdownContainer"],
     .st-key-select_left [data-testid="stMarkdownContainer"],
@@ -160,8 +162,12 @@ hr {
         padding: 0;
     }
 
+    .st-key-tab_left span,
+    .st-key-tab_right span,
+    .st-key-clear_screen span,
     .st-key-select_right span,
-    .st-key-select_left span {
+    .st-key-select_left span,
+    .st-key-select_enter span {
         margin: 0;
     }
 

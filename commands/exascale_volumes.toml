@@ -1,0 +1,84 @@
+name = "ES Volumes"
+description = "Exascale volumes demo + ACFS"
+
+[[commands]]
+name = "list volumes"
+lang = "bash"
+cmd = """
+sudo -iu grid ORACLE_BASE=/u01/app/grid \
+    escli lsvolume --detail
+"""
+
+[[commands]]
+name = "create volume"
+lang = "bash"
+cmd = """
+sudo -iu grid ORACLE_BASE=/u01/app/grid \
+    escli mkvolume 1g --vault Cluster-c1vault --attributes name=acfs_edv02
+"""
+undo = """
+_id=$(sudo -iu grid ORACLE_BASE=/u01/app/grid escli lsvolume --filter name=acfs_edv02 --attributes id | grep -v '^id')
+sudo -iu grid ORACLE_BASE=/u01/app/grid \
+    escli rmvolume $_id
+"""
+
+[[commands]]
+name = "list initiators"
+lang = "bash"
+cmd = """
+sudo -iu grid ORACLE_BASE=/u01/app/grid \
+    escli lsinitiator --detail
+"""
+
+[[commands]]
+name = "list vol attachements"
+lang = "bash"
+cmd = """
+sudo -iu grid ORACLE_BASE=/u01/app/grid \
+    escli lsvolumeattachment
+"""
+
+[[commands]]
+name = "create volume attachement"
+lang = "bash"
+cmd = """
+_vol_id=$(sudo -iu grid ORACLE_BASE=/u01/app/grid escli lsvolume --filter name=acfs_edv02 --attributes id | grep -v '^id')
+_gi_id=$(sudo -iu grid ORACLE_BASE=/u01/app/grid     escli lsinitiator --attributes giClusterId | uniq | grep -v '^giClusterId')
+sudo -iu grid ORACLE_BASE=/u01/app/grid \
+    escli mkvolumeattachment ${_vol_id} acfs_edv02 --attributes giClusterId=${_gi_id}
+"""
+undo = """
+_vol_id=$(sudo -iu grid ORACLE_BASE=/u01/app/grid escli lsvolume --filter name=acfs_edv02 --attributes id | grep -v '^id')
+_att_id=$(sudo -iu grid ORACLE_BASE=/u01/app/grid escli lsvolumeattachment --filter volume=${_vol_id} --attributes id | grep -v '^id')
+sudo -iu grid ORACLE_BASE=/u01/app/grid \
+    escli rmvolumeattachment ${_att_id}
+"""
+
+[[commands]]
+name = "list host ES volume devices"
+lang = "bash"
+cmd = "ls -l /dev/exc"
+
+[[commands]]
+name = "acfs format"
+lang = "bash"
+cmd = "mkfs -t acfs /dev/exc/acfs_edv02"
+
+[[commands]]
+name = "acfs add filesystem"
+lang = "bash"
+cmd = """
+. ~/grid.env
+srvctl add filesystem -device /dev/exc/acfs_edv02 -path /acfs02
+srvctl start filesystem -device /dev/exc/acfs_edv02
+"""
+undo = """
+. ~/grid.env
+srvctl stop filesystem -device /dev/exc/acfs_edv02
+srvctl remove filesystem -device /dev/exc/acfs_edv02
+"""
+
+[[commands]]
+name = "list filesystems"
+lang = "bash"
+cmd = "df -h"

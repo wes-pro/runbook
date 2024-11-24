@@ -114,7 +114,8 @@ def zellij_scroll_down():
 
 
 def zellij_ctrl_c():
-    zcmd = f'zellij --session "{args.session_name}" action write-chars \"\x03\n\"'
+    #zcmd = f'zellij --session "{args.session_name}" action write-chars \"\x03\n\"'
+    zcmd = f'zellij --session "{args.session_name}" action write 3'
     os.system(zcmd)
 
 
@@ -226,9 +227,9 @@ with st.container(key='remote'):
     with col_r11:
         exec_button = st.checkbox('AutoExec')
     with col_r12:
-        st.button('', icon=':material/arrow_circle_left:', key='tab_left', use_container_width=True, on_click=zellij_prev_tab)
+        st.button('prev_tab', icon=':material/arrow_circle_left:', key='tab_left', use_container_width=True, on_click=zellij_prev_tab)
     with col_r13:
-        st.button('', icon=':material/arrow_circle_right:', key='tab_right', use_container_width=True, on_click=zellij_next_tab)
+        st.button('next_tab', icon=':material/arrow_circle_right:', key='tab_right', use_container_width=True, on_click=zellij_next_tab)
     with col_r14:
         if exec_button:
             st.button('select_right', icon=':material/start:', key='select_right', type='primary', use_container_width=True, on_click=select_next_cmd)
@@ -263,7 +264,7 @@ with st.container(key='remote'):
 
     col_r41, col_r42, col_r43, col_r44 = st.columns([1,1,1,1], vertical_alignment='center')
     with col_r41:
-        st.button('', icon=':material/mop:', use_container_width=True, key='clear_screen', on_click=zellij_clear_screen)
+        st.button('clear_screen', icon=':material/mop:', use_container_width=True, key='clear_screen', on_click=zellij_clear_screen)
     with col_r42:
         st.button('', icon=':material/fullscreen:', key='fullscreen', use_container_width=True, on_click=zellij_toogle_fullscreen)
     with col_r43:
@@ -277,5 +278,14 @@ with st.container(key='remote'):
 with st.container(key='cmd_content', height=400):
     st.code(st.session_state.curr_command['cmd'], language=st.session_state.curr_command['lang'])
 
-#add_keyboard_shortcuts({"ArrowRight": "select_right", "ArrowLeft": "select_left"})
-add_keyboard_shortcuts({"PageDown": "select_right", "PageUp": "select_left", "Enter": "select_enter", "Home": "ctrl_c"})
+#add_keyboard_shortcuts({"ArrowRight": "select_right", "ArrowLeft": "select_left", })
+#add_keyboard_shortcuts({"PageDown": "select_right", "PageUp": "select_left", "Enter": "select_enter", "Home": "ctrl_c"})
+add_keyboard_shortcuts({
+    "ArrowRight": "select_right",
+    "ArrowLeft": "select_left",
+    "Enter": "select_enter",
+    "Escape": "ctrl_c",
+    "PageDown": "prev_tab",
+    "PageUp": "next_tab",
+    "Delete": "clear_screen"
+})
