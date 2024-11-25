@@ -46,7 +46,7 @@ pip install -r requirements.txt
 ./runnbook.sh -s test -f commands/sql.toml -f commands/clone.toml
 ```
 
-Add `-d` to enable detailed login.  
+Add `-d` to enable detailed logging.  
 
 If you want password protection (and you **really need it** when connected to public network) then catalog create subdirectory and file `.streamlit/secrets.toml` 
 under working RunBook directory and put this inside:
@@ -74,7 +74,7 @@ You can also use simple wrapper script:
 
   Local URL: http://localhost:8501
   Network URL: http://192.168.1.142:8501
-  External URL: http://82.11.34.231:8501
+  External URL: http://82.11.4.231:8501
 ```
 
 Now connect to application from web browser on your computer of better from your mobile phone if you have 
