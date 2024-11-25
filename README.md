@@ -48,8 +48,8 @@ pip install -r requirements.txt
 
 Add `-d` to enable detailed logging.  
 
-If you want password protection (and you **really need it** when connected to public network) then catalog create subdirectory and file `.streamlit/secrets.toml` 
-under working RunBook directory and put this inside:
+If you want password protection (and you **really need it** when connected to public network) then catalog 
+create file `~/.streamlit/secrets.toml` and put this inside:
 ```shell 
 password = "your password"
 ```
