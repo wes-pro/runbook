@@ -86,7 +86,9 @@ And you can now lookup, search and copy your commands to clipboard or paste them
 ![Copy&Execute](screenshots/presenting.png)
 
 # Using remote pointer
-There is a way to use traditional remote pointer like Logitech R400. 
+There is a way to use traditional remote pointer like Logitech R400 - but number of physical buttons on remote 
+is usually very limited so you can get only limited functionality comparing to using your mobile phone.
+
 If you open application on your computer (not on mobile phone), i.e. where your dongle is connected - then you can map 
 physical buttons to application buttons. 
 
