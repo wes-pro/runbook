@@ -74,7 +74,7 @@ You can also use simple wrapper script:
 
   Local URL: http://localhost:8501
   Network URL: http://192.168.1.142:8501
-  External URL: http://88.13.14.231:8501
+  External URL: http://82.11.34.231:8501
 ```
 
 Now connect to application from web browser on your computer of better from your mobile phone if you have 
