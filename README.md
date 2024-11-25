@@ -1,5 +1,5 @@
 # RunBook
-Simple application for absent-minded speakers (like me) who provides live demos during presentations but do not remember all the commands.
+Simple application for absent-minded speakers (like me) who prefers doing live demos but tend to forget the commands.
 
 It supposed to be used with great [Zellij](https://zellij.dev/) terminal multiplexer 
 (but without it you can still use it to copy commands to clipboard)
@@ -80,7 +80,7 @@ You can also use simple wrapper script:
 Now connect to application from web browser on your computer of better from your mobile phone if you have 
 WiFi connectivity between your laptop and mobile (I usually start WiFi tethering during presentation)
 
-From now on in the browser you will this simple interface:
+From now on in the browser you will see such interface:
 ![UI](screenshots/help.png)
 And you can now lookup, search and copy your commands to clipboard or paste them directly to Zellij active pane:
 ![Copy&Execute](screenshots/presenting.png)
