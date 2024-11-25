@@ -1,7 +1,7 @@
 # RunBook
-Simple application for lazy instructors and speakers who like live demos but do not remember all the commands.
+Simple application for absent-minded speakers (like me) who provides live demos during presentations but do not remember all the commands.
 
-It supposed to be used with great [Zellij](https://zellij.dev/) terminal multiplexer used during live demo 
+It supposed to be used with great [Zellij](https://zellij.dev/) terminal multiplexer 
 (but without it you can still use it to copy commands to clipboard)
 
 USAGE
@@ -85,6 +85,42 @@ From now on in the browser you will this simple interface:
 And you can now lookup, search and copy your commands to clipboard or paste them directly to Zellij active pane:
 ![Copy&Execute](screenshots/presenting.png)
 
+# Using remote pointer
+There is a way to use traditional remote pointer like Logitech R400. 
+If you open application on your computer (not on mobile phone), i.e. where your dongle is connected - then you can map 
+physical buttons to application buttons. 
+
+Here is how it works for me on Ubuntu 24.04 with cheap [Norwii N99 Wireless Presenter](https://www.norwii.com/producten/225-en.html):
+1. I add following lines to /lib/udev/hwdb.d/60-keyboard.hwdb:
+```shell
+# Norwii Wireless Presenter
+evdev:input:b0003v3243p0122*
+  KEYBOARD_KEY_070029=pageup     # hold left arrow longer
+  KEYBOARD_KEY_070028=pageup     # same - second key code sent
+  KEYBOARD_KEY_070005=pagedown   # hold left arrow longer
+  KEYBOARD_KEY_070052=left       # left - short press
+  KEYBOARD_KEY_070051=right      # right - short press
+  KEYBOARD_KEY_090001=esc        # < - left mouse
+  KEYBOARD_KEY_090002=enter      # > - right mouse
+  KEYBOARD_KEY_070008=delete     # side/bottom
+```
+2. Update hardware database:
+```shell
+sudo systemd-hwdb update
+```
+3. Start application and connect locally from browser on your laptop
+4. This code at the end of [runbook.py](runbook.py) maps application button with key event:
+```python
+add_keyboard_shortcuts({
+    "ArrowRight": "select_right",
+    "ArrowLeft": "select_left",
+    "Enter": "select_enter",
+    "Escape": "ctrl_c",
+    "PageDown": "prev_tab",
+    "PageUp": "next_tab",
+    "Delete": "clear_screen"
+})
+```
 
 # Remarks
 This application allows pasting commands to clipboard from remote machine or even execute them (but only in given Zellij session)

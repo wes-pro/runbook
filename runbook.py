@@ -27,7 +27,7 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=loglevel)
 st.set_page_config(page_title="RunBook", layout="centered", initial_sidebar_state="collapsed", menu_items={})
 
 
-#@st.cache_resource
+@st.cache_resource
 def load_command_files():
     cmd_series = {}
     for filename in args.config_file:
@@ -278,8 +278,6 @@ with st.container(key='remote'):
 with st.container(key='cmd_content', height=400):
     st.code(st.session_state.curr_command['cmd'], language=st.session_state.curr_command['lang'])
 
-#add_keyboard_shortcuts({"ArrowRight": "select_right", "ArrowLeft": "select_left", })
-#add_keyboard_shortcuts({"PageDown": "select_right", "PageUp": "select_left", "Enter": "select_enter", "Home": "ctrl_c"})
 add_keyboard_shortcuts({
     "ArrowRight": "select_right",
     "ArrowLeft": "select_left",
