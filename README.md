@@ -62,7 +62,7 @@ EXAMPLE:
 cd <runbook_directory>
 zellij -l test_layout.kdl attach --create testsession -f
 ```
-This will create new session of attach to existing of the same name (see Zellij documentation for details).  
+This will create new session or attach to existing of the same name (see Zellij documentation for details).  
 You can also use simple wrapper script:
 ```shell ./start_zellij_session.sh test_layout.kdl testsession ```
 
