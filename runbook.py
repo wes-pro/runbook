@@ -31,13 +31,23 @@ st.set_page_config(page_title="RunBook", layout="centered", initial_sidebar_stat
 def load_command_files():
     cmd_series = {}
     for filename in args.config_file:
-        logger.info(f'Loading commands from {filename}')
+        logger.debug(f'Loading commands from {filename}')
         with open(filename, 'r') as file:
             cmds = toml.load(file)
             cmd_series[cmds['name']] = cmds
     logger.info(f'Successfully loaded following command series: {', '.join(cmd_series.keys())}')
     return cmd_series
 
+
+def reload_command_file_if_changed():
+    global series
+    for filename in args.config_file:
+        with open(filename, 'r') as file:
+            cmds = toml.load(file)
+            if series and cmds['name'] in series:
+                if cmds != series[cmds['name']]:
+                    logger.info(f'Content of file {filename} has changed. Reloading it...')
+                    series[cmds['name']] = cmds
 
 def check_password():
 
@@ -197,6 +207,7 @@ if args.password and not check_password():
     st.stop()
 
 series = load_command_files()
+reload_command_file_if_changed()
 
 if 'curr_command' not in st.session_state:
     st.session_state.curr_series = list(series.values())[0]
